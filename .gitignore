@@ -5,7 +5,6 @@ dumphttp.log*
 
 # Build artifacts
 build/
-dist/
 *.spec.bak
 
 # Python
