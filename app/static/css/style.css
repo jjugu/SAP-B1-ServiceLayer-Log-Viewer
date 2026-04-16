@@ -118,6 +118,12 @@ body {
     border-radius: var(--radius-pill);
 }
 
+.nav-author {
+    font-size: 11px;
+    color: var(--border-hover);
+    font-style: italic;
+}
+
 .nav-right {
     display: flex;
     align-items: center;
