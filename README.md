@@ -97,7 +97,7 @@ Invoices, Orders, BusinessPartners, StockTransfers, PurchaseDeliveryNotes, Inven
 
 ### 지원 HTTP 메서드
 
-POST, PATCH, GET
+GET, POST, PATCH, PUT, DELETE 등 모든 HTTP 메서드
 
 ## 기술 스택
 
