@@ -636,6 +636,34 @@ function initColumnResize() {
     });
 }
 
+// ─── Theme Toggle ───
+
+function initTheme() {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+    }
+    updateThemeIcon();
+}
+
+function toggleTheme() {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    if (isLight) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+    }
+    updateThemeIcon();
+}
+
+function updateThemeIcon() {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    $('#theme-icon-dark').classList.toggle('hidden', isLight);
+    $('#theme-icon-light').classList.toggle('hidden', !isLight);
+}
+
 // ─── Startup ───
 
 async function checkExistingFiles() {
@@ -658,6 +686,10 @@ async function checkExistingFiles() {
 // ─── Event Listeners ───
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 테마 초기화
+    initTheme();
+    $('#btn-theme').addEventListener('click', toggleTheme);
+
     // 파일 열기 버튼
     $('#btn-open-file').addEventListener('click', openFileDialog);
     $('#btn-welcome-open').addEventListener('click', openFileDialog);
@@ -730,7 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#btn-shutdown').addEventListener('click', async () => {
         if (confirm('SL Log Viewer를 종료하시겠습니까?')) {
             await fetch('/api/shutdown', { method: 'POST' });
-            document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#8B949E;font-size:16px;">종료되었습니다. 이 탭을 닫아주세요.</div>';
+            document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:var(--text-secondary);font-size:16px;">종료되었습니다. 이 탭을 닫아주세요.</div>';
         }
     });
 

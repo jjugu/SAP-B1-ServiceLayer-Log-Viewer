@@ -51,6 +51,44 @@
     --nav-height: 56px;
     --sidebar-width: 260px;
     --stats-height: 48px;
+
+    /* Theme toggle */
+    --overlay-bg: rgba(1, 4, 9, 0.8);
+    --drop-overlay-bg: rgba(1, 4, 9, 0.85);
+    --welcome-icon-stroke: #30363D;
+}
+
+/* ─── Light Theme ─── */
+
+[data-theme="light"] {
+    --primary: #0969DA;
+    --primary-hover: #0550AE;
+    --secondary: #1A7F37;
+    --secondary-hover: #116329;
+    --neutral: #656D76;
+    --bg: #FFFFFF;
+    --surface: #F6F8FA;
+    --surface-hover: #EAEEF2;
+    --surface-raised: #D0D7DE;
+    --text-primary: #1F2328;
+    --text-secondary: #656D76;
+    --border: #D0D7DE;
+    --border-hover: #AFB8C1;
+    --success: #1A7F37;
+    --warning: #9A6700;
+    --error: #CF222E;
+    --accent: #CF222E;
+
+    --json-key: #0550AE;
+    --json-string: #0A3069;
+    --json-number: #0550AE;
+    --json-bool: #CF222E;
+    --json-null: #656D76;
+    --json-bracket: #656D76;
+
+    --overlay-bg: rgba(255, 255, 255, 0.8);
+    --drop-overlay-bg: rgba(255, 255, 255, 0.85);
+    --welcome-icon-stroke: #AFB8C1;
 }
 
 /* ─── Reset & Base ─── */
@@ -321,7 +359,7 @@ body {
 .parse-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(1, 4, 9, 0.8);
+    background: var(--overlay-bg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -877,7 +915,7 @@ body {
 .drop-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(1, 4, 9, 0.85);
+    background: var(--drop-overlay-bg);
     display: flex;
     align-items: center;
     justify-content: center;
