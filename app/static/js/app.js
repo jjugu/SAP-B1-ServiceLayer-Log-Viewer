@@ -129,6 +129,7 @@ async function initMainApp() {
     await Promise.all([
         loadFilters(),
         loadStats(),
+        updateLoadedFiles(),
     ]);
     await loadLogs();
 }
@@ -270,13 +271,15 @@ function renderLogTable(items) {
         const errorMsg = item.error_message
             ? truncate(item.error_message, 50)
             : '';
+        const dur = formatDuration(item.duration_ms);
 
         return `<tr class="${rowClass}" data-id="${item.id}">
             <td class="col-id">${item.id}</td>
             <td class="col-time">${time}</td>
             <td class="col-method"><span class="method-badge ${methodClass}">${item.method}</span></td>
-            <td class="col-endpoint" title="${item.url}">${endpoint}</td>
+            <td class="col-endpoint" title="${escapeHtml(item.url)}">${endpoint}</td>
             <td class="col-status"><span class="status-badge ${statusClass}">${item.res_status_code || '-'}</span></td>
+            <td class="col-duration"><span class="${dur.cls}">${dur.text}</span></td>
             <td class="col-ip">${item.ip}</td>
             <td class="col-error-text" title="${escapeHtml(item.error_message || '')}">${escapeHtml(errorMsg)}</td>
         </tr>`;
@@ -479,6 +482,13 @@ function formatJson(value, indent = 0, highlightError = false) {
 
 // ─── Helpers ───
 
+function formatDuration(ms) {
+    if (ms === null || ms === undefined) return { text: '-', cls: '' };
+    if (ms < 1000) return { text: ms + 'ms', cls: 'duration-fast' };
+    if (ms < 5000) return { text: (ms / 1000).toFixed(1) + 's', cls: 'duration-mid' };
+    return { text: (ms / 1000).toFixed(1) + 's', cls: 'duration-slow' };
+}
+
 function getStatusClass(code) {
     if (!code) return 'status-null';
     if (code < 300) return 'status-2xx';
@@ -518,6 +528,79 @@ function copyToClipboard(target) {
         const orig = btn.innerHTML;
         btn.innerHTML = '<span style="color:var(--success);font-size:12px">&#10003;</span>';
         setTimeout(() => btn.innerHTML = orig, 1000);
+    });
+}
+
+// ─── Drag & Drop ───
+
+function initDragDrop() {
+    let dragCounter = 0;
+    const overlay = $('#drop-overlay');
+
+    document.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        dragCounter++;
+        if (e.dataTransfer.types.includes('Files')) {
+            overlay.classList.remove('hidden');
+        }
+    });
+
+    document.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dragCounter--;
+        if (dragCounter <= 0) {
+            dragCounter = 0;
+            overlay.classList.add('hidden');
+        }
+    });
+
+    document.addEventListener('dragover', (e) => {
+        e.preventDefault();
+    });
+
+    document.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragCounter = 0;
+        overlay.classList.add('hidden');
+        if (e.dataTransfer.files.length > 0) {
+            handleFileSelect(e.dataTransfer.files);
+        }
+    });
+}
+
+// ─── Loaded Files Display ───
+
+async function updateLoadedFiles() {
+    const files = await api('/api/files');
+    const container = $('#loaded-files');
+    if (!container) return;
+    container.innerHTML = files.map(f =>
+        `<span class="loaded-file-chip">${f.filename} (${f.entry_count.toLocaleString()})</span>`
+    ).join('');
+}
+
+// ─── Keyboard Navigation ───
+
+function initKeyboardNav() {
+    document.addEventListener('keydown', (e) => {
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
+
+        const rows = [...dom.logTbody.querySelectorAll('tr')];
+        if (rows.length === 0) return;
+
+        const currentIdx = rows.findIndex(r => r.classList.contains('selected'));
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const next = currentIdx < rows.length - 1 ? currentIdx + 1 : currentIdx;
+            rows[next].click();
+            rows[next].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prev = currentIdx > 0 ? currentIdx - 1 : 0;
+            rows[prev].click();
+            rows[prev].scrollIntoView({ block: 'nearest' });
+        }
     });
 }
 
@@ -651,7 +734,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 컬럼 리사이즈
+    // 드래그 앤 드롭, 키보드 탐색, 컬럼 리사이즈
+    initDragDrop();
+    initKeyboardNav();
     initColumnResize();
 
     // 서버 heartbeat (3초마다) - 탭 닫으면 서버 자동 종료

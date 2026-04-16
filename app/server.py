@@ -228,7 +228,7 @@ def create_app():
         # 데이터 조회 (바디 제외 - 목록에서는 불필요)
         data_sql = f'''
             SELECT id, timestamp, timestamp_raw, ip, pid, method, url, endpoint,
-                   res_status_code, res_status_text, error_code, error_message, source_file
+                   res_status_code, res_status_text, error_code, error_message, duration_ms, source_file
             FROM log_pairs
             {where_clause}
             ORDER BY timestamp ASC, id ASC

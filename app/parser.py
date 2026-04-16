@@ -74,6 +74,7 @@ def init_db(db_path=None):
             res_body TEXT,
             error_code TEXT,
             error_message TEXT,
+            duration_ms INTEGER,
             source_file TEXT
         );
 
@@ -104,6 +105,14 @@ def parse_timestamp(ts_str):
         return dt.strftime('%Y-%m-%d %H:%M:%S')
     except ValueError:
         return ts_str
+
+
+def parse_timestamp_dt(ts_str):
+    """'Sat Apr 11 00:00:04 2026' -> datetime object or None"""
+    try:
+        return datetime.strptime(ts_str.strip(), '%a %b %d %H:%M:%S %Y')
+    except ValueError:
+        return None
 
 
 def normalize_endpoint(url):
@@ -229,6 +238,15 @@ def parse_log_file(filepath, db_path=None, progress_callback=None):
                 if status_code and status_code >= 400:
                     error_code, error_message = extract_error_info(body)
 
+                # 응답 시간 계산
+                duration_ms = None
+                req_dt = parse_timestamp_dt(matched_req['timestamp_raw'])
+                res_dt = parse_timestamp_dt(entry.get('timestamp_raw', ''))
+                if req_dt and res_dt:
+                    delta = (res_dt - req_dt).total_seconds()
+                    if 0 <= delta < 3600:
+                        duration_ms = int(delta * 1000)
+
                 pairs.append({
                     'timestamp': matched_req['timestamp'],
                     'timestamp_raw': matched_req['timestamp_raw'],
@@ -246,6 +264,7 @@ def parse_log_file(filepath, db_path=None, progress_callback=None):
                     'res_body': body,
                     'error_code': error_code,
                     'error_message': error_message,
+                    'duration_ms': duration_ms,
                     'source_file': filename,
                 })
 
@@ -259,12 +278,12 @@ def parse_log_file(filepath, db_path=None, progress_callback=None):
                 timestamp, timestamp_raw, ip, pid, method, url, endpoint,
                 req_headers, req_body, res_timestamp,
                 res_status_code, res_status_text, res_headers, res_body,
-                error_code, error_message, source_file
+                error_code, error_message, duration_ms, source_file
             ) VALUES (
                 :timestamp, :timestamp_raw, :ip, :pid, :method, :url, :endpoint,
                 :req_headers, :req_body, :res_timestamp,
                 :res_status_code, :res_status_text, :res_headers, :res_body,
-                :error_code, :error_message, :source_file
+                :error_code, :error_message, :duration_ms, :source_file
             )
         ''', pairs)
         total_inserted += len(pairs)
@@ -354,6 +373,7 @@ def parse_log_file(filepath, db_path=None, progress_callback=None):
                 'res_body': '',
                 'error_code': '',
                 'error_message': '',
+                'duration_ms': None,
                 'source_file': filename,
             })
 

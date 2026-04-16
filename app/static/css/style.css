@@ -570,8 +570,13 @@ body {
 .col-method { width: 65px; min-width: 55px; }
 .col-endpoint { min-width: 100px; }
 .col-status { width: 55px; min-width: 45px; }
+.col-duration { width: 65px; min-width: 50px; }
 .col-ip { width: 110px; min-width: 80px; }
 .col-error { min-width: 150px; }
+
+.duration-fast { color: var(--success); }
+.duration-mid { color: var(--warning); }
+.duration-slow { color: var(--error); font-weight: 500; }
 
 .log-table td {
     padding: var(--sp-2) var(--sp-3);
@@ -865,6 +870,50 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
     background: var(--border-hover);
+}
+
+/* ─── Drag & Drop Overlay ─── */
+
+.drop-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(1, 4, 9, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    border: 3px dashed var(--primary);
+    margin: 8px;
+    border-radius: var(--radius-lg);
+}
+
+.drop-message {
+    text-align: center;
+    color: var(--text-primary);
+    font-size: 16px;
+}
+.drop-message svg {
+    margin-bottom: var(--sp-4);
+}
+
+/* ─── Loaded Files ─── */
+
+.loaded-files {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    margin-left: auto;
+    overflow-x: auto;
+}
+
+.loaded-file-chip {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-secondary);
+    background: var(--surface-hover);
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
 }
 
 /* ─── Responsive ─── */
