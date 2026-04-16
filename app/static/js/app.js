@@ -484,9 +484,9 @@ function formatJson(value, indent = 0, highlightError = false) {
 
 function formatDuration(ms) {
     if (ms === null || ms === undefined) return { text: '-', cls: '' };
-    if (ms < 1000) return { text: ms + 'ms', cls: 'duration-fast' };
-    if (ms < 5000) return { text: (ms / 1000).toFixed(1) + 's', cls: 'duration-mid' };
-    return { text: (ms / 1000).toFixed(1) + 's', cls: 'duration-slow' };
+    if (ms === 0) return { text: '<1s', cls: 'duration-fast' };
+    if (ms <= 2000) return { text: Math.round(ms / 1000) + 's', cls: 'duration-mid' };
+    return { text: Math.round(ms / 1000) + 's', cls: 'duration-slow' };
 }
 
 function getStatusClass(code) {
