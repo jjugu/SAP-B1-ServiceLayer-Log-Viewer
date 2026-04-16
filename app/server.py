@@ -45,7 +45,11 @@ def create_app():
         static_folder=os.path.join(base_dir, 'static'),
     )
 
-    app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB
+    app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024 * 1024  # 2GB
+
+    @app.errorhandler(413)
+    def too_large(e):
+        return jsonify({'error': '파일이 너무 큽니다 (최대 2GB)'}), 413
 
     init_db()
 

@@ -76,6 +76,10 @@ async function handleFileSelect(files) {
             method: 'POST',
             body: formData,
         });
+        const contentType = res.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            throw new Error(`서버 오류 (${res.status})`);
+        }
         const data = await res.json();
 
         if (data.error) {
